@@ -15,7 +15,6 @@ import { orderContant } from "../../contant";
 const OrderSuccess = () => {
   const location = useLocation();
   const { state } = location;
-  console.log("location", location);
 
   return (
     <div style={{ background: "#f5f5f5", width: "100%", height: "100vh" }}>

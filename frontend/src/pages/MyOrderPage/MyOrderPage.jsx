@@ -19,21 +19,28 @@ const MyOrderPage = () => {
   const { state } = location;
   const navigate = useNavigate();
 
-  const fetchMyOrder = async () => {
-    const res = await OrderService.getOrderByUserId(state?.token, state?.id);
+  const fetchMyAllOrders = async () => {
+    const res = await OrderService.getAllOrdersByUserId(
+      state?.token,
+      state?.id
+    );
     return res.data;
   };
 
   const queryMyOrder = useQuery({
-    queryKey: ["users"],
-    queryFn: fetchMyOrder,
+    queryKey: ["orders"],
+    queryFn: fetchMyAllOrders,
     enabled: !!(state?.id && state?.token),
   });
 
   const { isLoading, data } = queryMyOrder;
 
   const handleOrderDetails = (id) => {
-    navigate(`/order-details/${id}`);
+    navigate(`/order-details/${id}`, {
+      state: {
+        token: state?.token,
+      },
+    });
   };
 
   const renderProduct = (data) => {
@@ -87,80 +94,84 @@ const MyOrderPage = () => {
   };
 
   return (
-    // <Loading>
-    <WrapperContainer>
-      <div style={{ height: "100%", width: "1270px", margin: "0 auto" }}>
-        <span style={{ fontSize: "15px", fontWeight: "bold" }}>
-          Đơn hàng của tôi
-        </span>
-        <WrapperListOrder>
-          {data?.map((order) => (
-            <WrapperItemOrder key={order?._id}>
-              <WrapperStatus>
-                <span style={{ fontSize: "14px", fontWeight: "bold" }}>
-                  Trạng thái
-                </span>
-                <div>
-                  <span style={{ color: "rgb(255, 66, 78)" }}>Giao hàng: </span>
-                  {`${order.isDelivered ? "Đã giao hàng" : "Chưa giao hàng"}`}
-                </div>
-                <div>
-                  <span style={{ color: "rgb(255, 66, 78)" }}>
-                    Thanh toán:{" "}
+    <Loading isLoading={isLoading}>
+      <WrapperContainer>
+        <div style={{ height: "100%", width: "1270px", margin: "0 auto" }}>
+          <span style={{ fontSize: "15px", fontWeight: "bold" }}>
+            Đơn hàng của tôi
+          </span>
+          <WrapperListOrder>
+            {data?.map((order) => (
+              <WrapperItemOrder key={order?._id}>
+                <WrapperStatus>
+                  <span style={{ fontSize: "14px", fontWeight: "bold" }}>
+                    Trạng thái
                   </span>
-                  {`${order.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}`}
-                </div>
-              </WrapperStatus>
-              {renderProduct(order?.orderItems)}
-              <WrapperFooterItem>
-                <div>
-                  <span style={{ color: "rgb(255, 66, 78)" }}>Tổng tiền: </span>
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      color: "rgb(56, 56, 61)",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {convertPrice(order?.totalPrice)}
-                  </span>
-                </div>
-                <div style={{ display: "flex", gap: "10px", paddingTop: 10 }}>
-                  <ButtonComponent
-                    size={40}
-                    styleButton={{
-                      height: "36px",
-                      border: "1px solid rgb(11, 116, 229)",
-                      borderRadius: "4px",
-                    }}
-                    textButton={"Hủy đơn hàng"}
-                    styleTextButton={{
-                      color: "rgb(11, 116, 229)",
-                      fontSize: "14px",
-                    }}
-                  ></ButtonComponent>
-                  <ButtonComponent
-                    onClick={() => handleOrderDetails(order?._id)}
-                    size={40}
-                    styleButton={{
-                      height: "36px",
-                      border: "1px solid rgb(11, 116, 229)",
-                      borderRadius: "4px",
-                    }}
-                    textButton={"Xem chi tiết"}
-                    styleTextButton={{
-                      color: "rgb(11, 116, 229)",
-                      fontSize: "14px",
-                    }}
-                  ></ButtonComponent>
-                </div>
-              </WrapperFooterItem>
-            </WrapperItemOrder>
-          ))}
-        </WrapperListOrder>
-      </div>
-    </WrapperContainer>
-    // </Loading>
+                  <div>
+                    <span style={{ color: "rgb(255, 66, 78)" }}>
+                      Giao hàng:{" "}
+                    </span>
+                    {`${order.isDelivered ? "Đã giao hàng" : "Chưa giao hàng"}`}
+                  </div>
+                  <div>
+                    <span style={{ color: "rgb(255, 66, 78)" }}>
+                      Thanh toán:{" "}
+                    </span>
+                    {`${order.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}`}
+                  </div>
+                </WrapperStatus>
+                {renderProduct(order?.orderItems)}
+                <WrapperFooterItem>
+                  <div>
+                    <span style={{ color: "rgb(255, 66, 78)" }}>
+                      Tổng tiền:{" "}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "rgb(56, 56, 61)",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {convertPrice(order?.totalPrice)}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: "10px", paddingTop: 10 }}>
+                    <ButtonComponent
+                      size={40}
+                      styleButton={{
+                        height: "36px",
+                        border: "1px solid rgb(11, 116, 229)",
+                        borderRadius: "4px",
+                      }}
+                      textButton={"Hủy đơn hàng"}
+                      styleTextButton={{
+                        color: "rgb(11, 116, 229)",
+                        fontSize: "14px",
+                      }}
+                    ></ButtonComponent>
+                    <ButtonComponent
+                      onClick={() => handleOrderDetails(order?._id)}
+                      size={40}
+                      styleButton={{
+                        height: "36px",
+                        border: "1px solid rgb(11, 116, 229)",
+                        borderRadius: "4px",
+                      }}
+                      textButton={"Xem chi tiết"}
+                      styleTextButton={{
+                        color: "rgb(11, 116, 229)",
+                        fontSize: "14px",
+                      }}
+                    ></ButtonComponent>
+                  </div>
+                </WrapperFooterItem>
+              </WrapperItemOrder>
+            ))}
+          </WrapperListOrder>
+        </div>
+      </WrapperContainer>
+    </Loading>
   );
 };
 

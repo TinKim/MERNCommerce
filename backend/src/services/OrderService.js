@@ -64,7 +64,7 @@ const createOrder = (newOrder) => {
     })
 }
 
-const getOrderDetails = (id) => {
+const getAllOrders = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
             const order = await Order.find({
@@ -88,7 +88,32 @@ const getOrderDetails = (id) => {
     })
 }
 
+const getOrderDetails = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const order = await Order.findById({
+                _id: id
+            })
+            if(order === null) {
+                resolve({
+                    status: 'OK',
+                    message: 'The order is not defined'
+                })
+            }
+
+            resolve({
+                status: 'OK',
+                message: 'SUCCESS',
+                data: order
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     createOrder,
-    getOrderDetails,
+    getAllOrders,
+    getOrderDetails
 }
