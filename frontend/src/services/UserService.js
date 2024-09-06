@@ -87,4 +87,3 @@ export const deleteUser = async (id, access_token) => {
         throw error.response ? error.response.data : error; // Ném lỗi nếu có lỗi từ API hoặc từ axios
     }
 };
-

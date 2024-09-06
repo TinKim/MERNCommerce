@@ -1,7 +1,11 @@
 import AdminPage from "../pages/AdminPage/AdminPage";
 import HomePage from "../pages/HomePage/HomePage";
+import MyOrderPage from "../pages/MyOrderPage/MyOrderPage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
+import OrderDetailsPage from "../pages/OrderDetailsPage/OrderDetailsPage";
 import OrderPage from "../pages/OrderPage/OrderPage";
+import OrderSuccess from "../pages/OrderSuccess/OrderSuccess";
+import PaymentPage from "../pages/PaymentPage/PaymentPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage/ProductDetailsPage";
 import ProductsPage from "../pages/ProductsPage/ProductsPage";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
@@ -18,6 +22,26 @@ export const routes = [
     {
         path: '/order',
         page: OrderPage,
+        isShowHeader: true
+    },
+    {
+        path: '/my-order',
+        page: MyOrderPage,
+        isShowHeader: true
+    },
+    {
+        path: '/order-details/:id',
+        page: OrderDetailsPage,
+        isShowHeader: true
+    },
+    {
+        path: '/payment',
+        page: PaymentPage,
+        isShowHeader: true
+    },
+    {
+        path: '/orderSuccess',
+        page: OrderSuccess,
         isShowHeader: true
     },
     {

@@ -23,7 +23,7 @@ root.render(
         </PersistGate>
       </Provider>
     </GlobalStyles>
-    <ReactQueryDevtools initialIsOpen={false} />
+    {/* <ReactQueryDevtools initialIsOpen={false} /> */}
   </QueryClientProvider>
   // </React.StrictMode>
 );

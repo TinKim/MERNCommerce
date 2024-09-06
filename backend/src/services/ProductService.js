@@ -18,7 +18,7 @@ const createProduct = (newProduct) => {
                 image,
                 type,
                 price,
-                countInStock, 
+                countInStock,
                 rating,
                 discount,
                 description
