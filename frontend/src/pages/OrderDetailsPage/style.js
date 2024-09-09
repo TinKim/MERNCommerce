@@ -4,8 +4,8 @@ export const WrapperHeaderUser = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-top: 20px;
-  padding: 20px;
+  margin-top: 8px;
+  padding: 18px;
   background-color: #fff;
   border-radius: 8px;
 `;
@@ -13,13 +13,14 @@ export const WrapperHeaderUser = styled.div`
 export const WrapperInfoUser = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 `;
 
 export const WrapperLabel = styled.span`
   font-size: 14px;
   font-weight: bold;
   color: #333;
+  justify-content: center;
 `;
 
 export const WrapperContentInfo = styled.div`
@@ -49,7 +50,7 @@ export const WrapperContentInfo = styled.div`
 `;
 
 export const WrapperStyleContent = styled.div`
-  margin-top: 20px;
+  margin-top: 12px;
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -58,8 +59,11 @@ export const WrapperStyleContent = styled.div`
 export const WrapperItemLabel = styled.span`
   font-size: 14px;
   font-weight: bold;
-  text-align: center;
   color: #333;
+  width: 110px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const WrapperProduct = styled.div`
@@ -94,7 +98,15 @@ export const WrapperNameProduct = styled.div`
 
 export const WrapperItem = styled.div`
   font-size: 14px;
-  text-align: center;
   color: #666;
-  width: 100px;
+  width: 110px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
+
+export const WrapperTotalPrice = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`

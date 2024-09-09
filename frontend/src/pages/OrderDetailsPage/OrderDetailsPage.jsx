@@ -12,6 +12,7 @@ import {
   WrapperNameProduct,
   WrapperProduct,
   WrapperStyleContent,
+  WrapperTotalPrice,
 } from "./style";
 import { convertPrice } from "../../utils";
 import { orderContant } from "../../contant";
@@ -36,17 +37,29 @@ const OrderDetailsPage = () => {
   });
 
   const { isLoading, data } = queryMyOrder;
+  console.log("data", data);
 
-  const priceMemo = useMemo(() => {
+  const priceDiscountMemo = useMemo(() => {
     const result = data?.orderItems?.reduce((total, cur) => {
-      return total + cur.price * cur.amount;
+      return total + ((cur.price * (100 - cur.discount)) / 100) * cur.amount;
     }, 0);
     return result;
   }, [data]);
 
+  // if (isLoading || !data) {
+  //   return <Loading isLoading={true} />;
+  // }
+
   return (
     <Loading isLoading={isLoading}>
-      <div style={{ width: "100%", height: "100vh", background: "#f5f5f5" }}>
+      <div
+        style={{
+          width: "100%",
+          height: "100vh",
+          background: "#f5f5f5",
+          padding: "2px 0",
+        }}
+      >
         <div style={{ height: "100%", width: "1270px", margin: "0 auto" }}>
           <span style={{ fontSize: "15px", fontWeight: "bold" }}>
             Chi tiết đơn hàng
@@ -102,8 +115,11 @@ const OrderDetailsPage = () => {
                 justifyContent: "space-between",
               }}
             >
-              <div style={{ width: "610px" }}>Sản phẩm</div>
+              <div style={{ width: "610px" }}>
+                <WrapperItemLabel>Sản phẩm</WrapperItemLabel>
+              </div>
               <WrapperItemLabel>Đơn giá</WrapperItemLabel>
+              <WrapperItemLabel>Giảm giá</WrapperItemLabel>
               <WrapperItemLabel>Số lượng</WrapperItemLabel>
               <WrapperItemLabel>Thành tiền</WrapperItemLabel>
             </div>
@@ -115,8 +131,8 @@ const OrderDetailsPage = () => {
                       src={order?.image}
                       alt={order?.name}
                       style={{
-                        width: "70px",
-                        height: "70px",
+                        width: "100px",
+                        height: "100px",
                         objectFit: "cover",
                         border: "1px solid rgb(238, 238, 238)",
                         padding: "2px",
@@ -125,35 +141,55 @@ const OrderDetailsPage = () => {
                     <div
                       style={{
                         width: 500,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
                         marginLeft: "10px",
                         height: "70px",
+                        display: "flex",
+                        alignItems: "center",
                       }}
                     >
-                      {order?.name}
+                      <span
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {order?.name}
+                      </span>
                     </div>
                   </WrapperNameProduct>
                   <WrapperItem>{convertPrice(order?.price)}</WrapperItem>
+                  <WrapperItem>{order?.discount || 0}%</WrapperItem>
                   <WrapperItem>{order?.amount}</WrapperItem>
                   <WrapperItem>
-                    {convertPrice(order?.price * order?.amount)}
+                    {convertPrice(
+                      ((order?.price * (100 - order?.discount)) / 100) *
+                        order?.amount
+                    )}
                   </WrapperItem>
                 </WrapperProduct>
               );
             })}
-            <div>
-              <WrapperItemLabel>Tạm tính</WrapperItemLabel>
-              <WrapperItem>{convertPrice(priceMemo)}</WrapperItem>
-            </div>
-            <div>
-              <WrapperItemLabel>Phí vận chuyển</WrapperItemLabel>
-              <WrapperItem>{convertPrice(data?.shippingPrice)}</WrapperItem>
-            </div>
-            <div>
-              <WrapperItemLabel>Tổng cộng</WrapperItemLabel>
-              <WrapperItem>{convertPrice(data?.totalPrice)}</WrapperItem>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "5px",
+                marginTop: "10px",
+              }}
+            >
+              <WrapperTotalPrice>
+                <WrapperItemLabel>Tạm tính</WrapperItemLabel>
+                <WrapperItem>{convertPrice(priceDiscountMemo)}</WrapperItem>
+              </WrapperTotalPrice>
+              <WrapperTotalPrice>
+                <WrapperItemLabel>Phí vận chuyển</WrapperItemLabel>
+                <WrapperItem>{convertPrice(data?.shippingPrice)}</WrapperItem>
+              </WrapperTotalPrice>
+              <WrapperTotalPrice>
+                <WrapperItemLabel>Tổng cộng</WrapperItemLabel>
+                <WrapperItem>{convertPrice(data?.totalPrice)}</WrapperItem>
+              </WrapperTotalPrice>
             </div>
           </WrapperStyleContent>
         </div>

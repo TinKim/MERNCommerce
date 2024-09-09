@@ -116,7 +116,13 @@ const OrderSuccess = () => {
                 })}
               </WrapperItemOrderInfo>
               <span>
-                <span style={{ fontSize: "13px", color: "rgb(254, 56, 52)" }}>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "rgb(254, 56, 52)",
+                    fontWeight: "bold",
+                  }}
+                >
                   Tổng tiền: {convertPrice(state?.totalPriceMemo)}
                 </span>
               </span>

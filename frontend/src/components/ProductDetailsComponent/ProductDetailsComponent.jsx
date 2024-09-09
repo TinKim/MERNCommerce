@@ -41,11 +41,15 @@ const ProductDetailsComponent = ({ idProduct }) => {
     }
   };
 
-  const handleChangeCount = (type) => {
+  const handleChangeCount = (type, limited) => {
     if (type === "increase") {
-      setNumProduct(numProduct + 1);
+      if (!limited) {
+        setNumProduct(numProduct + 1);
+      }
     } else {
-      setNumProduct(numProduct - 1);
+      if (!limited) {
+        setNumProduct(numProduct - 1);
+      }
     }
   };
 
@@ -78,6 +82,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
             image: productDetails?.image,
             price: productDetails?.price,
             product: productDetails?._id,
+            discount: productDetails?.discount,
           },
         })
       );
@@ -182,7 +187,7 @@ const ProductDetailsComponent = ({ idProduct }) => {
                   background: "transparent",
                   cursor: "pointer",
                 }}
-                onClick={() => handleChangeCount("decrease")}
+                onClick={() => handleChangeCount("decrease", numProduct === 1)}
               >
                 <MinusOutlined style={{ color: "#000", fontSize: "20px" }} />
               </button>
@@ -191,6 +196,8 @@ const ProductDetailsComponent = ({ idProduct }) => {
                 defaultValue={1}
                 value={numProduct}
                 size="small"
+                min={1}
+                max={productDetails?.countInStock}
               />
               <button
                 style={{
@@ -198,7 +205,12 @@ const ProductDetailsComponent = ({ idProduct }) => {
                   background: "transparent",
                   cursor: "pointer",
                 }}
-                onClick={() => handleChangeCount("increase")}
+                onClick={() =>
+                  handleChangeCount(
+                    "increase",
+                    numProduct === productDetails.countInStock
+                  )
+                }
               >
                 <PlusOutlined style={{ color: "#000", fontSize: "20px" }} />
               </button>

@@ -39,6 +39,10 @@ export const WrapperItemOrder = styled.div`
     padding: 17px;
     background: #fff;
     margin-top: 12px;
+    font-size: 13px;
+    span {
+        text-align: center;
+    }
 `
 
 export const WrapperPriceDiscount = styled.span`
@@ -50,6 +54,7 @@ export const WrapperPriceDiscount = styled.span`
 export const WrapperCountOrder = styled.div`
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 84px;
     border: 1px solid #ccc;
     border-radius: 4px;

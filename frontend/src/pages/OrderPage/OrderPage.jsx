@@ -5,6 +5,7 @@ import {
   WrapperItemOrder,
   WrapperLeft,
   WrapperListOrder,
+  WrapperPriceDiscount,
   WrapperRight,
   WrapperStyleHeader,
   WrapperStyleHeaderDelivery,
@@ -62,11 +63,15 @@ const OrderPage = () => {
     }
   };
 
-  const handleChangeCount = (type, idProduct) => {
+  const handleChangeCount = (type, idProduct, limited) => {
     if (type === "increase") {
-      dispatch(increaseAmount({ idProduct }));
+      if (!limited) {
+        dispatch(increaseAmount({ idProduct }));
+      }
     } else {
-      dispatch(decreaseAmount({ idProduct }));
+      if (!limited) {
+        dispatch(decreaseAmount({ idProduct }));
+      }
     }
   };
 
@@ -110,16 +115,9 @@ const OrderPage = () => {
     setIsModalOpenUpdateInfo(true);
   };
 
-  const priceMemo = useMemo(() => {
-    const result = order?.orderItemsSelected?.reduce((total, cur) => {
-      return total + cur.price * cur.amount;
-    }, 0);
-    return result;
-  }, [order]);
-
   const priceDiscountMemo = useMemo(() => {
     const result = order?.orderItemsSelected?.reduce((total, cur) => {
-      return total + cur.discount * cur.amount;
+      return total + ((cur.price * (100 - cur.discount)) / 100) * cur.amount;
     }, 0);
     if (Number(result)) {
       return result;
@@ -128,18 +126,16 @@ const OrderPage = () => {
   }, [order]);
 
   const deliveryPriceMemo = useMemo(() => {
-    if (order?.orderItemsSelected.length === 0 || priceMemo > 500000) {
+    if (order?.orderItemsSelected.length === 0 || priceDiscountMemo > 500000) {
       return 0;
-    } else if (priceMemo >= 200000 && priceMemo <= 500000) {
+    } else if (priceDiscountMemo >= 200000 && priceDiscountMemo <= 500000) {
       return 15000;
     } else return 25000;
-  }, [priceMemo]);
+  }, [priceDiscountMemo]);
 
   const totalPriceMemo = useMemo(() => {
-    return (
-      Number(priceMemo) - Number(priceDiscountMemo) + Number(deliveryPriceMemo)
-    );
-  }, [priceMemo, priceDiscountMemo, deliveryPriceMemo]);
+    return Number(priceDiscountMemo) + Number(deliveryPriceMemo);
+  }, [priceDiscountMemo, deliveryPriceMemo]);
 
   const handleRemoveAllOrder = () => {
     if (listChecked?.length > 1) {
@@ -267,7 +263,8 @@ const OrderPage = () => {
                   justifyContent: "space-between",
                 }}
               >
-                <span>Đơn giá</span>
+                <span style={{ paddingLeft: "11px" }}>Đơn giá</span>
+                <span>Giảm giá</span>
                 <span>Số lượng</span>
                 <span>Thành tiền</span>
                 <DeleteOutlined
@@ -322,13 +319,18 @@ const OrderPage = () => {
                       }}
                     >
                       <span>
-                        <span style={{ fontSize: "13px", color: "#242424" }}>
+                        <span
+                          style={{
+                            fontSize: "13px",
+                            color: "#242424",
+                            width: "70px",
+                            display: "inline-block",
+                          }}
+                        >
                           {convertPrice(order?.price)}
                         </span>
-                        {/* <WrapperPriceDiscount>
-                            {order?.price}
-                        </WrapperPriceDiscount> */}
                       </span>
+                      <span>{order?.discount}%</span>
                       <WrapperCountOrder>
                         <button
                           style={{
@@ -337,7 +339,11 @@ const OrderPage = () => {
                             cursor: "pointer",
                           }}
                           onClick={() =>
-                            handleChangeCount("decrease", order?.product)
+                            handleChangeCount(
+                              "decrease",
+                              order?.product,
+                              order?.amount === 1
+                            )
                           }
                         >
                           <MinusOutlined
@@ -348,6 +354,8 @@ const OrderPage = () => {
                           defaultValue={order?.amount}
                           value={order?.amount}
                           size="small"
+                          min={1}
+                          max={order?.countInStock}
                         />
                         <button
                           style={{
@@ -356,7 +364,11 @@ const OrderPage = () => {
                             cursor: "pointer",
                           }}
                           onClick={() =>
-                            handleChangeCount("increase", order?.product)
+                            handleChangeCount(
+                              "increase",
+                              order?.product,
+                              order?.amount === order.countInStock
+                            )
                           }
                         >
                           <PlusOutlined
@@ -371,7 +383,10 @@ const OrderPage = () => {
                           fontWeight: 700,
                         }}
                       >
-                        {convertPrice(order?.price * order?.amount)}
+                        {convertPrice(
+                          ((order?.price * (100 - order?.discount)) / 100) *
+                            order?.amount
+                        )}
                       </span>
                       <DeleteOutlined
                         style={{ cursor: "pointer" }}
@@ -416,25 +431,8 @@ const OrderPage = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {convertPrice(priceMemo)}
+                    {convertPrice(priceDiscountMemo)}
                   </span>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    paddingBottom: "5px",
-                  }}
-                >
-                  <span>Giảm giá</span>
-                  <span
-                    style={{
-                      color: "#000",
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                    }}
-                  >{`${priceDiscountMemo}%`}</span>
                 </div>
                 <div
                   style={{

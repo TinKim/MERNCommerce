@@ -62,16 +62,9 @@ const PaymentPage = () => {
     setIsModalOpenUpdateInfo(true);
   };
 
-  const priceMemo = useMemo(() => {
-    const result = order?.orderItemsSelected?.reduce((total, cur) => {
-      return total + cur.price * cur.amount;
-    }, 0);
-    return result;
-  }, [order]);
-
   const priceDiscountMemo = useMemo(() => {
     const result = order?.orderItemsSelected?.reduce((total, cur) => {
-      return total + cur.discount * cur.amount;
+      return total + ((cur.price * (100 - cur.discount)) / 100) * cur.amount;
     }, 0);
     if (Number(result)) {
       return result;
@@ -80,18 +73,16 @@ const PaymentPage = () => {
   }, [order]);
 
   const deliveryPriceMemo = useMemo(() => {
-    if (priceMemo > 200000) {
-      return 15000;
-    } else if (priceMemo === 0) {
+    if (order?.orderItemsSelected.length === 0 || priceDiscountMemo > 500000) {
       return 0;
+    } else if (priceDiscountMemo >= 200000 && priceDiscountMemo <= 500000) {
+      return 15000;
     } else return 25000;
-  }, [priceMemo]);
+  }, [priceDiscountMemo]);
 
   const totalPriceMemo = useMemo(() => {
-    return (
-      Number(priceMemo) - Number(priceDiscountMemo) + Number(deliveryPriceMemo)
-    );
-  }, [priceMemo, priceDiscountMemo, deliveryPriceMemo]);
+    return Number(priceDiscountMemo) + Number(deliveryPriceMemo);
+  }, [priceDiscountMemo, deliveryPriceMemo]);
 
   const handleAddOrder = () => {
     if (!order?.orderItemsSelected?.length) {
@@ -105,7 +96,7 @@ const PaymentPage = () => {
       user.address &&
       user.city &&
       user.phone &&
-      priceMemo &&
+      priceDiscountMemo &&
       user?.id
     ) {
       setIsLoadingAddOrder(true);
@@ -118,7 +109,7 @@ const PaymentPage = () => {
           phone: user?.phone,
           city: user?.city,
           paymentMethod: payment,
-          itemsPrice: priceMemo,
+          itemsPrice: priceDiscountMemo,
           shippingPrice: deliveryPriceMemo,
           totalPrice: totalPriceMemo,
           user: user?.id,
@@ -297,25 +288,8 @@ const PaymentPage = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      {convertPrice(priceMemo)}
+                      {convertPrice(priceDiscountMemo)}
                     </span>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      paddingBottom: "5px",
-                    }}
-                  >
-                    <span>Giảm giá</span>
-                    <span
-                      style={{
-                        color: "#000",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                      }}
-                    >{`${priceDiscountMemo}%`}</span>
                   </div>
                   <div
                     style={{

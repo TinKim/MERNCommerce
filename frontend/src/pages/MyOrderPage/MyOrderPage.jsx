@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Loading from "../../components/LoadingComponent/Loading";
 import { useQuery } from "@tanstack/react-query";
 import * as OrderService from "../../services/OrderService";
@@ -13,6 +13,8 @@ import {
   WrapperStatus,
 } from "./style";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useMutationHooks } from "../../hooks/useMutationHook";
+import { message } from "antd";
 
 const MyOrderPage = () => {
   const location = useLocation();
@@ -42,6 +44,39 @@ const MyOrderPage = () => {
       },
     });
   };
+
+  const mutation = useMutationHooks((data) => {
+    const { token, id, orderItems } = data;
+    const res = OrderService.cancelOrder(token, id, orderItems);
+    console.log("res", res.data);
+    return res;
+  });
+
+  const handleCancelOrder = (order) => {
+    mutation.mutate(
+      { token: state?.token, id: order._id, orderItems: order?.orderItems },
+      {
+        onSuccess: () => {
+          queryMyOrder.refetch();
+        },
+      }
+    );
+  };
+
+  const {
+    isLoading: isLoadingCancel,
+    isSuccess: isSuccessCancel,
+    isError: isErrorCancel,
+    data: dataCancel,
+  } = mutation;
+
+  useEffect(() => {
+    if (isSuccessCancel && dataCancel?.status === "OK") {
+      message.success("Xóa đơn hàng thành công");
+    } else if (isErrorCancel) {
+      message.error("Xóa đơn hàng không thành công");
+    }
+  }, [isSuccessCancel, isErrorCancel, dataCancel]);
 
   const renderProduct = (data) => {
     return data?.map((order) => {
@@ -138,6 +173,7 @@ const MyOrderPage = () => {
                   </div>
                   <div style={{ display: "flex", gap: "10px", paddingTop: 10 }}>
                     <ButtonComponent
+                      onClick={() => handleCancelOrder(order)}
                       size={40}
                       styleButton={{
                         height: "36px",
