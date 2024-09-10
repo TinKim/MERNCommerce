@@ -21,6 +21,8 @@ import * as message from "../../components/Message/Message";
 import { updateUser } from "../../redux/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 import { removeAllOrderProduct } from "../../redux/slices/orderSlice";
+import { PayPalButton } from "react-paypal-button-v2";
+import * as PaymentService from "../../services/PaymentService";
 
 const PaymentPage = () => {
   const order = useSelector((state) => state.order);
@@ -29,6 +31,7 @@ const PaymentPage = () => {
   const [delivery, setDelivery] = useState("fast");
   const [payment, setPayment] = useState("later_money");
   const navigate = useNavigate();
+  const [sdkReady, setSdkReady] = useState(false);
 
   const [isModalOpenUpdateInfo, setIsModalOpenUpdateInfo] = useState(false);
 
@@ -202,6 +205,70 @@ const PaymentPage = () => {
     setPayment(e.target.value);
   };
 
+  const addPaypalScript = async () => {
+    const { data } = await PaymentService.getConfig();
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = `https://sandbox.paypal.com/sdk/js?client-id=${data}`;
+    script.async = true;
+    script.onload = () => {
+      setSdkReady(true);
+    };
+    document.body.appendChild(script);
+    console.log("script", script);
+  };
+
+  useEffect(() => {
+    if (!window.paypal) {
+      addPaypalScript();
+    } else {
+      setSdkReady(true);
+    }
+  }, []);
+
+  const onSuccessPaypal = (details, data) => {
+    mutationAddOrder.mutate(
+      {
+        token: user?.access_token,
+        orderItems: order?.orderItemsSelected,
+        fullName: user?.name,
+        address: user?.address,
+        phone: user?.phone,
+        city: user?.city,
+        paymentMethod: payment,
+        itemsPrice: priceDiscountMemo,
+        shippingPrice: deliveryPriceMemo,
+        totalPrice: totalPriceMemo,
+        user: user?.id,
+        isPaid: true,
+        paidAt: details.update_time,
+      },
+      {
+        onSuccess: () => {
+          const arrayOrdered = [];
+          order?.orderItemsSelected?.forEach((element) => {
+            arrayOrdered.push(element.product);
+          });
+          dispatch(removeAllOrderProduct({ listChecked: arrayOrdered }));
+          message.success("Đặt hàng thành công");
+          setIsLoadingAddOrder(false);
+          navigate("/orderSuccess", {
+            state: {
+              delivery,
+              payment,
+              orders: order?.orderItemsSelected,
+              totalPriceMemo: totalPriceMemo,
+            },
+          });
+        },
+        onError: () => {
+          message.error("Đặt hàng không thành công");
+          setIsLoadingAddOrder(false);
+        },
+      }
+    );
+  };
+
   return (
     <div style={{ background: "#f5f5f5", width: "100%", height: "100vh" }}>
       <Loading isLoading={isLoadingAddOrder}>
@@ -251,6 +318,7 @@ const PaymentPage = () => {
                       {" "}
                       Thanh toán tiền mặt khi nhận hàng
                     </Radio>
+                    <Radio value="paypal"> Thanh toán bằng Paypal</Radio>
                   </WrapperRadio>
                 </div>
               </WrapperInfo>
@@ -329,24 +397,37 @@ const PaymentPage = () => {
                   </span>
                 </WrapperTotal>
               </div>
-              <ButtonComponent
-                onClick={() => handleAddOrder()}
-                size={40}
-                styleButton={{
-                  background: "rgb(255, 57, 69)",
-                  height: "48px",
-                  width: "360px",
-                  border: "none",
-                  borderRadius: "4px",
-                  marginLeft: "40px",
-                }}
-                textButton={"Đặt hàng"}
-                styleTextButton={{
-                  color: "#fff",
-                  fontSize: "15px",
-                  fontWeight: "bold",
-                }}
-              ></ButtonComponent>
+              {payment === "paypal" && sdkReady ? (
+                <div style={{ width: "360px", marginLeft: "40px" }}>
+                  <PayPalButton
+                    amount={(totalPriceMemo / 24670).toFixed(2)}
+                    // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
+                    onSuccess={onSuccessPaypal}
+                    onError={() => {
+                      alert("Error");
+                    }}
+                  />
+                </div>
+              ) : (
+                <ButtonComponent
+                  onClick={() => handleAddOrder()}
+                  size={40}
+                  styleButton={{
+                    background: "rgb(255, 57, 69)",
+                    height: "48px",
+                    width: "360px",
+                    border: "none",
+                    borderRadius: "4px",
+                    marginLeft: "40px",
+                  }}
+                  textButton={"Đặt hàng"}
+                  styleTextButton={{
+                    color: "#fff",
+                    fontSize: "15px",
+                    fontWeight: "bold",
+                  }}
+                ></ButtonComponent>
+              )}
             </WrapperRight>
           </div>
         </div>

@@ -37,10 +37,14 @@ export const WrapperContentInfo = styled.div`
   .phone-info,
   .delivery-info,
   .delivery-fee,
-  .payment-info,
-  .status-payment {
+  .payment-info {
     font-size: 14px;
     color: #666;
+  }
+
+  .status-payment {
+    font-size: 14px;
+    color: rgb(234, 133, 0);
   }
 
   .name-delivery {
