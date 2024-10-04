@@ -59,6 +59,12 @@ const AdminUser = () => {
     return res;
   });
 
+  const mutationDeletedMany = useMutationHooks((data) => {
+    const { token, ids } = data;
+    const res = UserService.deleteManyUser(token, ids);
+    return res;
+  });
+
   const getAllUsers = async () => {
     const res = await UserService.getAllUser(user?.access_token);
     return res;
@@ -83,11 +89,11 @@ const AdminUser = () => {
   }, [form, stateUserDetails]);
 
   useEffect(() => {
-    if (rowSelected) {
+    if (rowSelected && isOpenDrawer) {
       setIsLoadingUpdate(true);
       fetchGetDetailsUser(rowSelected);
     }
-  }, [rowSelected]);
+  }, [rowSelected, isOpenDrawer]);
 
   const handleDetailsUser = () => {
     setIsOpenDrawer(true);
@@ -103,6 +109,11 @@ const AdminUser = () => {
     isSuccess: isSuccessDeleted,
     isError: isErrorDeleted,
   } = mutationDeleted;
+  const {
+    data: dataDeletedMany,
+    isSuccess: isSuccessDeletedMany,
+    isError: isErrorDeletedMany,
+  } = mutationDeletedMany;
 
   const queryUser = useQuery({
     queryKey: ["user"],
@@ -275,6 +286,15 @@ const AdminUser = () => {
     }
   }, [isSuccessDeleted, isErrorDeleted]);
 
+  useEffect(() => {
+    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
+      message.success("Xóa tài khoản thành công");
+      handleCancelDelete();
+    } else if (isErrorDeletedMany) {
+      message.error("Xóa tài khoản không thành công");
+    }
+  }, [isSuccessDeletedMany, isErrorDeletedMany]);
+
   const handleCancelDelete = () => {
     setIsModalOpenDelete(false);
   };
@@ -284,6 +304,24 @@ const AdminUser = () => {
     try {
       await mutationDeleted.mutateAsync(
         { id: rowSelected, token: user?.access_token },
+        {
+          onSettled: () => {
+            queryUser.refetch();
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteManyUsers = async (ids) => {
+    setIsLoading(true);
+    try {
+      await mutationDeletedMany.mutateAsync(
+        { token: user?.access_token, ids: ids },
         {
           onSettled: () => {
             queryUser.refetch();
@@ -354,6 +392,7 @@ const AdminUser = () => {
       <WrapperHeader>Quản lý người dùng</WrapperHeader>
       <div style={{ marginTop: "20px" }}>
         <TableComponent
+          handleDeleteMany={handleDeleteManyUsers}
           columns={columns}
           isLoading={isLoadingUsers}
           data={dataTable}

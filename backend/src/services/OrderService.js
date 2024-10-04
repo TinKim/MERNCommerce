@@ -1,10 +1,11 @@
 const Order = require("../models/OrderProduct")
 const Product = require("../models/ProductModel")
+// const EmailService = require("../services/EmailService")
 
 const createOrder = (newOrder) => {
     return new Promise(async (resolve, reject) => {
         const { orderItems, paymentMethod, itemsPrice, shippingPrice, totalPrice, 
-            fullName, address, city, phone, user, isPaid, paidAt } = newOrder
+            fullName, address, city, phone, user, email, isPaid, paidAt } = newOrder
         try {
             const promises = orderItems.map(async (order) => {
                 const productData = await Product.findOneAndUpdate(
@@ -19,27 +20,9 @@ const createOrder = (newOrder) => {
                     {new: true}
                 )
                 if(productData) {
-                    const createdOrder = await Order.create({
-                        orderItems, 
-                        shippingAddress: {
-                            fullName,
-                            address,
-                            city,
-                            phone,
-                        },
-                        paymentMethod,
-                        itemsPrice,
-                        shippingPrice,
-                        totalPrice,
-                        user,
-                        isPaid,
-                        paidAt,
-                    })
-                    if(createdOrder) {
-                        return {
-                            status: 'OK',
-                            message: 'SUCCESS',
-                        }
+                    return {
+                        status: 'OK',
+                        message: 'SUCCESS',
                     }
                 } else {
                     return {
@@ -50,17 +33,41 @@ const createOrder = (newOrder) => {
                 }
             })
             const results = await Promise.all(promises)
-            const newData = results && results.filter((item) => item.id)
+            const newData = results && results.filter((item) => item.id )
             if(newData.length) {
+                const arrId = []
+                newData.forEach((item) => {
+                    arrId.push(item.id)
+                })
                 resolve({
                     status: 'ERR',
-                    message: `The product with the id${newData.join(',')} is not in stock`
+                    message: `The product with the id: ${arrId.join(', ')} is not in stock`
                 })
+            } else {
+                const createdOrder = await Order.create({
+                    orderItems, 
+                    shippingAddress: {
+                        fullName,
+                        address,
+                        city,
+                        phone,
+                    },
+                    paymentMethod,
+                    itemsPrice,
+                    shippingPrice,
+                    totalPrice,
+                    user,
+                    isPaid,
+                    paidAt,
+                })
+                if(createdOrder) {
+                    // await EmailService.sendEmailCreateOrder(email, orderItems)
+                    resolve({
+                        status: 'OK',
+                        message: 'SUCCESS',
+                    })
+                }
             }
-            resolve({
-                status: 'OK',
-                message: 'Success'
-            })
         } catch (e) {
             reject(e)
         }
@@ -79,7 +86,6 @@ const getAllOrders = (id) => {
                     message: 'The order is not defined'
                 })
             }
-
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',
@@ -103,7 +109,6 @@ const getOrderDetails = (id) => {
                     message: 'The order is not defined'
                 })
             }
-
             resolve({
                 status: 'OK',
                 message: 'SUCCESS',

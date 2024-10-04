@@ -48,7 +48,6 @@ const MyOrderPage = () => {
   const mutation = useMutationHooks((data) => {
     const { token, id, orderItems } = data;
     const res = OrderService.cancelOrder(token, id, orderItems);
-    console.log("res", res.data);
     return res;
   });
 
@@ -81,7 +80,7 @@ const MyOrderPage = () => {
   const renderProduct = (data) => {
     return data?.map((order) => {
       return (
-        <WrapperHeaderItem>
+        <WrapperHeaderItem key={order?._id}>
           <img
             src={order?.image}
             alt=""
@@ -180,8 +179,8 @@ const MyOrderPage = () => {
                         border: "1px solid rgb(11, 116, 229)",
                         borderRadius: "4px",
                       }}
-                      textButton={"Hủy đơn hàng"}
-                      styleTextButton={{
+                      textbutton={"Hủy đơn hàng"}
+                      styletextbutton={{
                         color: "rgb(11, 116, 229)",
                         fontSize: "14px",
                       }}
@@ -194,8 +193,8 @@ const MyOrderPage = () => {
                         border: "1px solid rgb(11, 116, 229)",
                         borderRadius: "4px",
                       }}
-                      textButton={"Xem chi tiết"}
-                      styleTextButton={{
+                      textbutton={"Xem chi tiết"}
+                      styletextbutton={{
                         color: "rgb(11, 116, 229)",
                         fontSize: "14px",
                       }}

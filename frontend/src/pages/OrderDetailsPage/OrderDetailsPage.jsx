@@ -37,7 +37,6 @@ const OrderDetailsPage = () => {
   });
 
   const { isLoading, data } = queryMyOrder;
-  console.log("data", data);
 
   const priceDiscountMemo = useMemo(() => {
     const result = data?.orderItems?.reduce((total, cur) => {

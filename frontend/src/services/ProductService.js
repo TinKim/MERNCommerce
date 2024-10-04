@@ -67,14 +67,21 @@ export const deleteProduct = async (id, access_token) => {
     }
 };
 
-export const deleteManyProduct = async (data, access_token) => {
-    const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/product/delete-many`, data, {
-        headers: {
-            token: `Bearer ${access_token}`,
+export const deleteManyProduct = async (access_token, data) => {
+    try {
+        const res = await axiosJWT.post(`${process.env.REACT_APP_API_URL}/product/delete-many`, data, {
+            headers: {
+                token: `Bearer ${access_token}`,
+            }
+        });
+        if (res.data.status === 'ERR') {
+            throw new Error(res.data.message); // Ném lỗi nếu phản hồi có trạng thái ERR
         }
-    })
-    return res.data
-}
+        return res.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error; // Ném lỗi nếu có lỗi từ API hoặc từ axios
+    }
+};
 
 export const getAllTypeProduct = async () => {
     const res = await axios.get(`${process.env.REACT_APP_API_URL}/product/get-all-type`)

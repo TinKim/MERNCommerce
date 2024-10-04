@@ -1,5 +1,5 @@
 import { Col, Image, Rate, Row } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import imageProductSmall from "../../assets/images/imagesmall.webp";
 import {
   WrapperAddressProduct,
@@ -19,12 +19,17 @@ import { useQuery } from "@tanstack/react-query";
 import Loading from "../LoadingComponent/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { addOrderProduct } from "../../redux/slices/orderSlice";
-import { convertPrice } from "../../utils";
+import { addOrderProduct, resetOrder } from "../../redux/slices/orderSlice";
+import { convertPrice, initFacebookSDK } from "../../utils";
+import * as message from "../Message/Message";
+import LikeButtonComponent from "../LikeButtonComponent/LikeButtonComponent";
+import CommentComponent from "../CommentComponent/CommentComponent";
 
 const ProductDetailsComponent = ({ idProduct }) => {
   const [numProduct, setNumProduct] = useState(1);
   const user = useSelector((state) => state.user);
+  const order = useSelector((state) => state.order);
+  const [errorLimitOrder, setErrorLimitOrder] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -59,6 +64,37 @@ const ProductDetailsComponent = ({ idProduct }) => {
     enabled: !!idProduct,
   });
 
+  useEffect(() => {
+    initFacebookSDK();
+  }, []);
+
+  const getTotalOrdered = () => {
+    const orderRedux = order?.orderItems?.find(
+      (item) => item.product === productDetails?._id
+    );
+    return orderRedux ? orderRedux.amount + numProduct : numProduct;
+  };
+
+  useEffect(() => {
+    if (productDetails) {
+      const totalOrdered = getTotalOrdered();
+      if (totalOrdered <= productDetails.countInStock) {
+        setErrorLimitOrder(false);
+      } else {
+        setErrorLimitOrder(true);
+      }
+    }
+  }, [numProduct, productDetails, order]);
+
+  useEffect(() => {
+    if (order?.isSuccessOrder) {
+      message.success("Thêm vào giỏ hàng thành công");
+    }
+    return () => {
+      dispatch(resetOrder());
+    };
+  }, [order?.isSuccessOrder]);
+
   const handleAddOrderProduct = () => {
     if (!user?.id) {
       navigate("/sign-in", { state: location?.pathname });
@@ -74,18 +110,24 @@ const ProductDetailsComponent = ({ idProduct }) => {
       //         required: true,
       //     },
       // },
-      dispatch(
-        addOrderProduct({
-          orderItem: {
-            name: productDetails?.name,
-            amount: numProduct,
-            image: productDetails?.image,
-            price: productDetails?.price,
-            product: productDetails?._id,
-            discount: productDetails?.discount,
-          },
-        })
-      );
+      const totalOrdered = getTotalOrdered();
+      if (totalOrdered <= productDetails?.countInStock) {
+        dispatch(
+          addOrderProduct({
+            orderItem: {
+              name: productDetails?.name,
+              amount: numProduct,
+              image: productDetails?.image,
+              price: productDetails?.price,
+              product: productDetails?._id,
+              discount: productDetails?.discount,
+              countInStock: productDetails?.countInStock,
+            },
+          })
+        );
+      } else {
+        setErrorLimitOrder(true);
+      }
     }
   };
 
@@ -171,6 +213,13 @@ const ProductDetailsComponent = ({ idProduct }) => {
             <span className="address">{user?.address}</span> -
             <span className="change-address"> Đổi địa chỉ</span>
           </WrapperAddressProduct>
+          <LikeButtonComponent
+            dataHref={
+              process.env.REACT_APP_IS_LOCAL
+                ? "https://developers.facebook.com/docs/plugins/"
+                : window.location.href
+            }
+          />
           <div
             style={{
               margin: "10px 0 20px",
@@ -227,8 +276,8 @@ const ProductDetailsComponent = ({ idProduct }) => {
                 borderRadius: "4px",
               }}
               onClick={handleAddOrderProduct}
-              textButton={"Chọn mua"}
-              styleTextButton={{
+              textbutton={"Chọn mua"}
+              styletextbutton={{
                 color: "#fff",
                 fontSize: "15px",
                 fontWeight: "700",
@@ -243,11 +292,24 @@ const ProductDetailsComponent = ({ idProduct }) => {
                 border: "1px solid rgb(13, 92, 182)",
                 borderRadius: "4px",
               }}
-              textButton={"Mua trả sau"}
-              styleTextButton={{ color: "rgb(13, 92, 182)", fontSize: "15px" }}
+              textbutton={"Mua trả sau"}
+              styletextbutton={{ color: "rgb(13, 92, 182)", fontSize: "15px" }}
             ></ButtonComponent>
           </div>
+          {errorLimitOrder && (
+            <div style={{ color: "rgb(255, 57, 69)" }}>
+              Sản phẩm đã hết hàng
+            </div>
+          )}
         </Col>
+        <CommentComponent
+          dataHref={
+            process.env.REACT_APP_IS_LOCAL
+              ? "https://developers.facebook.com/docs/plugins/comments#configurator"
+              : window.location.href
+          }
+          width="1270"
+        />
       </Row>
     </Loading>
   );

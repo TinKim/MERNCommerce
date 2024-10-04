@@ -86,6 +86,24 @@ const getAllProduct = async (req, res) => {
     }
 }
 
+const deleteManyProducts = async (req, res) => {
+    try {
+        const ids = req.body
+        if(!ids) {
+            return res.status(200).json({
+                status: 'ERR',
+                message: 'The ids is required'
+            })
+        }
+        const response = await ProductService.deleteManyProducts(ids)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 const getAllType = async (req, res) => {
     try {
         const response = await ProductService.getAllType()
@@ -103,5 +121,6 @@ module.exports = {
     getDetailsProduct,
     deleteProduct,
     getAllProduct,
+    deleteManyProducts,
     getAllType
 }

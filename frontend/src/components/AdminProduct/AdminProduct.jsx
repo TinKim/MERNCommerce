@@ -85,6 +85,12 @@ const AdminProduct = () => {
     return res;
   });
 
+  const mutationDeletedMany = useMutationHooks((data) => {
+    const { token, ids } = data;
+    const res = ProductService.deleteManyProduct(token, ids);
+    return res;
+  });
+
   const getAllProducts = async () => {
     const res = await ProductService.getAllProduct();
     return res;
@@ -116,11 +122,11 @@ const AdminProduct = () => {
   }, [form, stateProductDetails, isModalOpen]);
 
   useEffect(() => {
-    if (rowSelected) {
+    if (rowSelected && isOpenDrawer) {
       setIsLoadingUpdate(true);
       fetchGetDetailsProduct(rowSelected);
     }
-  }, [rowSelected]);
+  }, [rowSelected, isOpenDrawer]);
 
   const handleDetailsProduct = () => {
     setIsOpenDrawer(true);
@@ -142,6 +148,11 @@ const AdminProduct = () => {
     isSuccess: isSuccessDeleted,
     isError: isErrorDeleted,
   } = mutationDeleted;
+  const {
+    data: dataDeletedMany,
+    isSuccess: isSuccessDeletedMany,
+    isError: isErrorDeletedMany,
+  } = mutationDeletedMany;
 
   const queryProduct = useQuery({
     queryKey: ["products"],
@@ -333,6 +344,15 @@ const AdminProduct = () => {
     }
   }, [isSuccessDeleted, isErrorDeleted]);
 
+  useEffect(() => {
+    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
+      message.success("Xóa sản phẩm thành công");
+      handleCancelDelete();
+    } else if (isErrorDeletedMany) {
+      message.error("Xóa sản phẩm không thành công");
+    }
+  }, [isSuccessDeletedMany, isErrorDeletedMany]);
+
   const handleCancel = () => {
     setIsModalOpen(false);
     setStateProduct({
@@ -357,6 +377,24 @@ const AdminProduct = () => {
     try {
       await mutationDeleted.mutateAsync(
         { id: rowSelected, token: user?.access_token },
+        {
+          onSettled: () => {
+            queryProduct.refetch();
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteManyProducts = async (ids) => {
+    setIsLoading(true);
+    try {
+      await mutationDeletedMany.mutateAsync(
+        { token: user?.access_token, ids: ids },
         {
           onSettled: () => {
             queryProduct.refetch();
@@ -484,6 +522,7 @@ const AdminProduct = () => {
       </div>
       <div style={{ marginTop: "20px" }}>
         <TableComponent
+          handleDeleteMany={handleDeleteManyProducts}
           columns={columns}
           isLoading={isLoadingProducts}
           data={dataTable}

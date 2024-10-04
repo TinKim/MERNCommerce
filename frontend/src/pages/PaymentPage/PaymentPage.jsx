@@ -215,7 +215,6 @@ const PaymentPage = () => {
       setSdkReady(true);
     };
     document.body.appendChild(script);
-    console.log("script", script);
   };
 
   useEffect(() => {
@@ -240,8 +239,10 @@ const PaymentPage = () => {
         shippingPrice: deliveryPriceMemo,
         totalPrice: totalPriceMemo,
         user: user?.id,
+        email: user?.email,
         isPaid: true,
         paidAt: details.update_time,
+        email: user?.email,
       },
       {
         onSuccess: () => {
@@ -420,8 +421,8 @@ const PaymentPage = () => {
                     borderRadius: "4px",
                     marginLeft: "40px",
                   }}
-                  textButton={"Đặt hàng"}
-                  styleTextButton={{
+                  textbutton={"Đặt hàng"}
+                  styletextbutton={{
                     color: "#fff",
                     fontSize: "15px",
                     fontWeight: "bold",

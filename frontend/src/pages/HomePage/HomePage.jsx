@@ -112,7 +112,7 @@ const HomePage = () => {
             }}
           >
             <WrapperButtonMore
-              textButton="Xem thêm"
+              textbutton="Xem thêm"
               type="outline"
               styleButton={{
                 border: "1px solid rgb(11, 116, 229)",
@@ -129,7 +129,7 @@ const HomePage = () => {
                 products?.total === products?.data?.length ||
                 products.totalPage === 1
               }
-              styleTextButton={{ fontWeight: 500 }}
+              styletextbutton={{ fontWeight: 500 }}
               onClick={() => setLimit((prev) => prev + 6)}
             />
           </div>
