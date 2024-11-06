@@ -6,7 +6,7 @@ import { isJsonString } from './utils'
 import { jwtDecode } from "jwt-decode";
 import * as UserService from './services/UserService';
 import { useDispatch, useSelector } from 'react-redux'
-import { updateUser } from './redux/slices/userSlice'
+import { resetUser, updateUser } from './redux/slices/userSlice'
 import Loading from './components/LoadingComponent/Loading'
 
 function App() {
@@ -24,9 +24,9 @@ function App() {
   }, [])
 
   const handleDecoded = () => {
-    let storageData = localStorage.getItem('access_token')
+    let storageData = user?.access_token || localStorage.getItem('access_token')
     let decoded = {}
-    if (storageData && isJsonString(storageData)) {
+    if (storageData && isJsonString(storageData) && !user?.access_token) {
       storageData = JSON.parse(storageData)
       decoded = jwtDecode(storageData)
     }
@@ -37,9 +37,16 @@ function App() {
     // Do something before request is sent
     const currentTime = new Date()
     const { decoded } = handleDecoded()
+    let storageRefreshToken = localStorage.getItem("refresh_token")
+    const refreshToken = JSON.parse(storageRefreshToken)
+    const decodeRefreshToken = jwtDecode(refreshToken)
     if (decoded?.exp < currentTime.getTime() / 1000) {
-      const data = await UserService.refreshToken()
-      config.headers['token'] = `Bearer ${data?.access_token}`
+      if(decodeRefreshToken?.exp > currentTime.getTime() / 1000) {
+        const data = await UserService.refreshToken(refreshToken)
+        config.headers['token'] = `Bearer ${data?.access_token}`
+      } else {
+        dispatch(resetUser())
+      }
     }
     return config;
   }, function (error) {
@@ -47,8 +54,10 @@ function App() {
   });
 
   const handleGetDetailsUser = async (id, token) => {
+    let storageRefreshToken = localStorage.getItem("refresh_token")
+    const refreshToken = JSON.parse(storageRefreshToken)
     const res = await UserService.getDetailsUser(id, token)
-    dispatch(updateUser({ ...res?.data, access_token: token }))
+    dispatch(updateUser({ ...res?.data, access_token: token, refreshToken: refreshToken }))
   }
 
   return (

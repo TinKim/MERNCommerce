@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  UploadOutlined,
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { WrapperHeader } from "./style";
+import { WrapperHeader, WrapperUploadFile } from "./style";
 import { Button, Form, Space } from "antd";
 import TableComponent from "../TableComponent/TableComponent";
 import InputComponent from "../InputComponent/InputComponent";
@@ -30,20 +31,15 @@ const AdminUser = () => {
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
 
-  const [stateUser, setStateUser] = useState({
-    name: "",
-    email: "",
-    address: "",
-    phone: "",
-    isAdmin: false,
-  });
   const [stateUserDetails, setStateUserDetails] = useState({
     name: "",
     email: "",
     address: "",
     phone: "",
+    avatar: "",
     isAdmin: false,
   });
+  console.log("stateUserDetails", stateUserDetails);
 
   const [form] = Form.useForm();
 
@@ -78,6 +74,7 @@ const AdminUser = () => {
         email: res?.data?.email,
         address: res?.data?.address,
         phone: res?.data?.phone,
+        avatar: res?.data?.avatar,
         isAdmin: res?.data?.isAdmin,
       });
     }
@@ -93,6 +90,7 @@ const AdminUser = () => {
       setIsLoadingUpdate(true);
       fetchGetDetailsUser(rowSelected);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowSelected, isOpenDrawer]);
 
   const handleDetailsUser = () => {
@@ -275,6 +273,7 @@ const AdminUser = () => {
     } else if (isErrorUpdated) {
       message.error("Cập nhật người dùng không thành công");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessUpdated, isErrorUpdated]);
 
   useEffect(() => {
@@ -284,6 +283,7 @@ const AdminUser = () => {
     } else if (isErrorDeleted) {
       message.error("Xóa tài khoản không thành công");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessDeleted, isErrorDeleted]);
 
   useEffect(() => {
@@ -293,6 +293,7 @@ const AdminUser = () => {
     } else if (isErrorDeletedMany) {
       message.error("Xóa tài khoản không thành công");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessDeletedMany, isErrorDeletedMany]);
 
   const handleCancelDelete = () => {
@@ -342,6 +343,7 @@ const AdminUser = () => {
       email: "",
       address: "",
       phone: "",
+      avatar: "",
       isAdmin: false,
     });
     form.resetFields();
@@ -354,17 +356,6 @@ const AdminUser = () => {
     });
   };
 
-  const handleOnchangeAvatar = async ({ fileList }) => {
-    const file = fileList[0];
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setStateUser({
-      ...stateUser,
-      image: file.preview,
-    });
-  };
-
   const handleOnchangeAvatarDetails = async ({ fileList }) => {
     const file = fileList[0];
     if (!file.url && !file.preview) {
@@ -372,7 +363,7 @@ const AdminUser = () => {
     }
     setStateUserDetails({
       ...stateUserDetails,
-      image: file.preview,
+      avatar: file.preview,
     });
   };
 
@@ -468,6 +459,37 @@ const AdminUser = () => {
                 onChange={handleOnChangeDetails}
                 name="phone"
               />
+            </Form.Item>
+
+            <Form.Item
+              label="Avatar"
+              name="avatar"
+              rules={[
+                { required: true, message: "Please upload user avatar!" },
+              ]}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "20px" }}
+              >
+                <WrapperUploadFile
+                  onChange={handleOnchangeAvatarDetails}
+                  maxCount={1}
+                >
+                  <Button icon={<UploadOutlined />}>Upload</Button>
+                </WrapperUploadFile>
+                {stateUserDetails?.avatar && (
+                  <img
+                    src={stateUserDetails?.avatar}
+                    style={{
+                      height: "60px",
+                      width: "60px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                    alt="avatar"
+                  />
+                )}
+              </div>
             </Form.Item>
 
             <Form.Item wrapperCol={{ offset: 20, span: 16 }}>

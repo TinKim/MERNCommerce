@@ -29,9 +29,9 @@ const sendEmailCreateOrder = async (email, orderItems) => {
     const info = await transporter.sendMail({
         from: process.env.MAIL_ACCOUNT, // sender address
         to: email, // list of receivers
-        subject: "Order placed successfully at TikiClone", // Subject line
+        subject: "Order placed successfully at MERNCommerce", // Subject line
         text: "Hello world?", // plain text body
-        html: `<div><b>Bạn đã đặt hàng tại TikiClone thành công</b></div>${orderItems}`, // html body
+        html: `<div><b>Bạn đã đặt hàng tại MERNCommerce thành công</b></div>${orderItems}`, // html body
         attachments: attachImage,
     });
     

@@ -74,7 +74,7 @@ const createOrder = (newOrder) => {
     })
 }
 
-const getAllOrders = (id) => {
+const getAllOrdersByUserId = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
             const order = await Order.find({
@@ -171,9 +171,25 @@ const cancelOrder = (id, data) => {
     })
 }
 
+const getAllOrders = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const allOrder = await Order.find()
+            resolve({
+                status: 'OK',
+                message: 'Success',
+                data: allOrder
+            })
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     createOrder,
-    getAllOrders,
+    getAllOrdersByUserId,
     getOrderDetails,
-    cancelOrder
+    cancelOrder,
+    getAllOrders
 }

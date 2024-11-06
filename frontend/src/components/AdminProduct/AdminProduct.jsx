@@ -126,6 +126,7 @@ const AdminProduct = () => {
       setIsLoadingUpdate(true);
       fetchGetDetailsProduct(rowSelected);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowSelected, isOpenDrawer]);
 
   const handleDetailsProduct = () => {
@@ -265,8 +266,8 @@ const AdminProduct = () => {
       sorter: (a, b) => a.price - b.price,
       filters: [
         {
-          text: ">= 1.000.000",
-          value: ">=",
+          text: "> 1.000.000",
+          value: ">",
         },
         {
           text: "<= 1.000.000",
@@ -274,8 +275,8 @@ const AdminProduct = () => {
         },
       ],
       onFilter: (value, record) => {
-        if (value === ">=") {
-          return record.price >= 1000000;
+        if (value === ">") {
+          return record.price > 1000000;
         }
         return record.price <= 1000000;
       },
@@ -286,8 +287,8 @@ const AdminProduct = () => {
       sorter: (a, b) => a.rating - b.rating,
       filters: [
         {
-          text: ">= 3",
-          value: ">=",
+          text: "> 3",
+          value: ">",
         },
         {
           text: "<= 3",
@@ -295,8 +296,8 @@ const AdminProduct = () => {
         },
       ],
       onFilter: (value, record) => {
-        if (value === ">=") {
-          return record.rating >= 3;
+        if (value === ">") {
+          return record.rating > 3;
         }
         return record.rating <= 3;
       },
@@ -324,6 +325,7 @@ const AdminProduct = () => {
     } else if (isError) {
       message.error("Đăng sản phẩm không thành công");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess, isError]);
 
   useEffect(() => {
@@ -333,6 +335,7 @@ const AdminProduct = () => {
     } else if (isErrorUpdated) {
       message.error("Cập nhật thông tin sản phẩm không thành công");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessUpdated, isErrorUpdated]);
 
   useEffect(() => {
@@ -342,6 +345,7 @@ const AdminProduct = () => {
     } else if (isErrorDeleted) {
       message.error("Xóa sản phẩm không thành công");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessDeleted, isErrorDeleted]);
 
   useEffect(() => {
@@ -351,6 +355,7 @@ const AdminProduct = () => {
     } else if (isErrorDeletedMany) {
       message.error("Xóa sản phẩm không thành công");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessDeletedMany, isErrorDeletedMany]);
 
   const handleCancel = () => {
@@ -464,7 +469,7 @@ const AdminProduct = () => {
     });
   };
 
-  const handleOnchangeAvatar = async ({ fileList }) => {
+  const handleOnchangeProduct = async ({ fileList }) => {
     const file = fileList[0];
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
@@ -475,7 +480,7 @@ const AdminProduct = () => {
     });
   };
 
-  const handleOnchangeAvatarDetails = async ({ fileList }) => {
+  const handleOnchangeProductDetails = async ({ fileList }) => {
     const file = fileList[0];
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj);
@@ -677,7 +682,10 @@ const AdminProduct = () => {
               <div
                 style={{ display: "flex", alignItems: "center", gap: "20px" }}
               >
-                <WrapperUploadFile onChange={handleOnchangeAvatar} maxCount={1}>
+                <WrapperUploadFile
+                  onChange={handleOnchangeProduct}
+                  maxCount={1}
+                >
                   <Button icon={<UploadOutlined />}>Upload</Button>
                 </WrapperUploadFile>
                 {stateProduct?.image && (
@@ -689,7 +697,7 @@ const AdminProduct = () => {
                       borderRadius: "50%",
                       objectFit: "cover",
                     }}
-                    alt="avatar"
+                    alt="productImage"
                   />
                 )}
               </div>
@@ -830,7 +838,7 @@ const AdminProduct = () => {
                 style={{ display: "flex", alignItems: "center", gap: "20px" }}
               >
                 <WrapperUploadFile
-                  onChange={handleOnchangeAvatarDetails}
+                  onChange={handleOnchangeProductDetails}
                   maxCount={1}
                 >
                   <Button icon={<UploadOutlined />}>Upload</Button>
@@ -844,7 +852,7 @@ const AdminProduct = () => {
                       borderRadius: "50%",
                       objectFit: "cover",
                     }}
-                    alt="avatar"
+                    alt="productImage"
                   />
                 )}
               </div>

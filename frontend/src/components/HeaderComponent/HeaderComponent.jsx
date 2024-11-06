@@ -37,6 +37,8 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const handleLogout = async () => {
     setLoading(true);
     await UserService.logoutUser();
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     dispatch(resetUser());
     setLoading(false);
     navigate("/");
@@ -113,7 +115,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
             onClick={() => navigate("/")}
             style={{ cursor: "pointer" }}
           >
-            Nguyễn Kim Tín - 2174801030128
+            MERNCommerce
           </WrapperTextHeader>
         </Col>
         {!isHiddenSearch && (
@@ -122,7 +124,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
               size="large"
               bordered="false"
               textbutton="Tìm kiếm"
-              placeholder="input search text"
+              placeholder="Search"
               onChange={onSearch}
             />
           </Col>

@@ -185,7 +185,7 @@ const SignUpPage = () => {
             height="203px"
             width="203px"
           />
-          <h2>Mua sắm tại TikiClone</h2>
+          <h2>Mua sắm tại MERNCommerce</h2>
         </WrapperContainerRight>
       </div>
     </div>
